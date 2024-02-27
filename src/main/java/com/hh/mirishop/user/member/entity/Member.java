@@ -35,7 +35,7 @@ public class Member {
     @Column(name = "number")
     private Long number;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)
