@@ -18,14 +18,18 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 
     private final MemberRepository memberRepository;
 
+    /**
+     * 유저 정보를 받아 존재하는지 boolean을 리턴하는 메소드
+     */
     @Override
+    @Transactional(readOnly = true)
     public boolean existsMemberByNumber(Long memberNumber) {
         return memberRepository.findByNumberAndIsDeletedFalse(memberNumber).isPresent();
     }
 
-    /*
-    특정 회원 상세 정보 조회
-    */
+    /**
+     * memberNumber를 받아 회원 상세 정보 조회하는 메소드
+     */
     @Override
     @Transactional(readOnly = true)
     public MemberDetailResponse getMemberDetail(Long memberNumber) {
@@ -34,9 +38,9 @@ public class MemberQueryServiceImpl implements MemberQueryService {
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
-    /*
-    회원 목록 조회
-    */
+    /**
+     * 전체 회원 목록을 조회하는 메소드
+     */
     @Override
     @Transactional(readOnly = true)
     public List<MemberListResponse> listMembers() {

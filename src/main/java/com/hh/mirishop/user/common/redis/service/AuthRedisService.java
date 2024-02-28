@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+/**
+ * AuthRedis : 유저의 refreshToken을 저장하는 redis
+ */
 @Service
 public class AuthRedisService {
 

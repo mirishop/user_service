@@ -42,8 +42,9 @@ public class MemberController {
     private final EmailService emailService;
     private final ImageUploadService imageUploadService;
 
-    /*
-    회원가입
+    /**
+     * 회원가입 정보를 받아 Member를 생성 후, MemberJoinResponse를 리턴합니다.
+     * MemberJoinResponse : memberNumber, email 포함.
      */
     @PostMapping("/register")
     public ResponseEntity<BaseResponse<MemberJoinResponse>> register(
@@ -53,18 +54,18 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.of("회원가입 성공", true, joinMember));
     }
 
-    /*
-    이메일 인증요청
-    */
+    /**
+     * 이메일 정보를 받아 인증번호를 요청합니다.
+     */
     @PostMapping("/email-authentication")
     public ResponseEntity<BaseResponse<Void>> requestEmailVerification(@RequestBody @Valid EmailRequest request) {
         emailService.authEmail(request);
         return ResponseEntity.ok(BaseResponse.of("이메일 인증 요청 성공", true, null));
     }
 
-    /*
-    인증코드 검증
-    */
+    /**
+     * 이메일 정보와 인증코드를 받아 검증합니다.
+     */
     @GetMapping("/email-verification")
     public ResponseEntity<BaseResponse<String>> verifyEmail(@RequestParam("email") String email,
                                                             @RequestParam("verificationCode") String verificationCode) {
@@ -75,23 +76,20 @@ public class MemberController {
         return ResponseEntity.badRequest().body(BaseResponse.of("이메일 인증 실패", false, "이메일 인증 실패"));
     }
 
-    // 프론트단에 저장된 업로드 경로를 리턴
+    /**
+     * 파일을 받아 저장된 이미지 경로를 반환합니다.
+     */
     @PostMapping("/upload/image")
-    public ResponseEntity<BaseResponse<String>> uploadProfileImage(@RequestParam("image") MultipartFile imageFile) {
-        log.info("엔드포인트 접속확인");
-        try {
+    public ResponseEntity<BaseResponse<String>> uploadProfileImage(@RequestParam("image") MultipartFile imageFile)
+            throws IOException {
+            log.info("이미지 생성 메소드 진입");
             String imagePath = imageUploadService.uploadImage(imageFile);
             return ResponseEntity.ok(BaseResponse.of("이미지 업로드 성공", true, imagePath)); // 저장된 이미지의 경로 반환
-        } catch (IllegalArgumentException | IOException e) {
-            log.error("이미지 업로드 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(BaseResponse.of("이미지 업로드에 실패했습니다.", false, null));
-        }
     }
 
-    /*
-    유저 정보 조회
-    */
+    /**
+     * 유저 아이디를 받아 정보를 조회합니다.
+     */
     @GetMapping("/{memberNumber}")
     public ResponseEntity<BaseResponse<MemberDetailResponse>> getMemberDetail(
             @PathVariable("memberNumber") Long memberNumber) {
@@ -99,9 +97,9 @@ public class MemberController {
         return ResponseEntity.ok(BaseResponse.of("유저 정보를 불러왔습니다.", true, memberDetail));
     }
 
-    /*
-    유저 정보 수정
-    */
+    /**
+     * 유저 정보를 받아 유저정보를 수정합니다.
+     */
     @PatchMapping
     public ResponseEntity<BaseResponse<Void>> update(
             @Valid @RequestBody MemberUpdateRequest memberUpdateRequest, @AuthenticationPrincipal
@@ -110,9 +108,9 @@ public class MemberController {
         return ResponseEntity.ok().body(BaseResponse.of("유저 정보 변경 완료", true, null));
     }
 
-    /*
-    비밀번호 정보 수정
-    */
+    /**
+     * 유저 정보를 받아 비밀번호를 수정합니다.
+     */
     @PutMapping("/password")
     public ResponseEntity<BaseResponse<Void>> changePassword(
             @Valid @RequestBody ChangePasswordRequest changePasswordRequest, @AuthenticationPrincipal
@@ -120,5 +118,4 @@ public class MemberController {
         memberService.changePassword(changePasswordRequest, userDetails);
         return ResponseEntity.ok().body(BaseResponse.of("패스워드 변경 완료", true, null));
     }
-
 }

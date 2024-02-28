@@ -19,7 +19,7 @@ public class MemberRequest {
     private String password;
 
     @NotBlank
-    private String name;
+    private String nickname;
 
     @NotBlank
     private String profileImage;

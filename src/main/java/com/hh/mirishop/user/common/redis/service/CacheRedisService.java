@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+/**
+ * CacheRedis : 이메일 인증 번호를 저장하는 redis
+ * 유효시간 10분
+ */
 @Service
 public class CacheRedisService {
 

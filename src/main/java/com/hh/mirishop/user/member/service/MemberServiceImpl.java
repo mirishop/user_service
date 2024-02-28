@@ -27,6 +27,10 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    /**
+     * MemberRequest를 받아 회원을 등록하는 메소드
+     * MemberRequest = email, password, nickname, profileImage, bio
+     */
     @Override
     @Transactional
     public MemberJoinResponse register(final MemberRequest memberRequest) {
@@ -36,15 +40,15 @@ public class MemberServiceImpl implements MemberService {
 
         validateEmail(email);
         validatePassword(password);
-        validateUploadProfileImage(profileImagePath);
+        String profileImage = validateUploadProfileImage(profileImagePath);
 
         String encodedPassword = encodePassword(password);
 
         final Member member = Member.builder()
-                .nickname(memberRequest.getName())
-                .email(memberRequest.getEmail())
+                .email(email)
                 .password(encodedPassword)
-                .profileImage(memberRequest.getProfileImage())
+                .nickname(memberRequest.getNickname())
+                .profileImage(profileImage)
                 .bio(memberRequest.getBio())
                 .role(Role.ROLE_USER) // role 설정
                 .isDeleted(false) // 기본값 false
@@ -55,25 +59,34 @@ public class MemberServiceImpl implements MemberService {
         return new MemberJoinResponse(savedMember);
     }
 
+    /**
+     * 유저 정보와 수정 정보(MemberUpdateRequest)를 받아 업데이트하는 메소드
+     * MemberUpdateRequest = nickname, profileImage, bio
+     */
     @Override
     @Transactional
     public void update(MemberUpdateRequest memberUpdateRequest, UserDetailsImpl userDetails) {
         Member member = memberRepository.findByEmail(userDetails.getEmail())
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        String nickname = memberUpdateRequest.getNickName();
+        String nickname = memberUpdateRequest.getNickname();
         String profileImagePath = memberUpdateRequest.getProfileImage();
         String bio = memberUpdateRequest.getBio();
 
-        validateUploadProfileImage(profileImagePath);
+        String profileImage = validateUploadProfileImage(profileImagePath);
 
         member.updateNickname(nickname);
-        member.updateProfileImage(profileImagePath);
+        member.updateProfileImage(profileImage);
         member.updateBio(bio);
 
         memberRepository.save(member);
     }
 
+    /**
+     * 유저 정보와 비밀번호 정보(ChangePasswordRequest)를 받아 비밀번호를 업데이트하는 메소드
+     * ChangePasswordRequest = oldPassword, newPassword
+     * 토큰만으로 유저 검증은 가능하지만 본인확인 보안 차원으로 oldPasswor를 한번더 받는다.
+     */
     @Override
     @Transactional
     public void changePassword(ChangePasswordRequest changePasswordRequest, UserDetailsImpl userDetails) {
@@ -126,10 +139,11 @@ public class MemberServiceImpl implements MemberService {
         return bCryptPasswordEncoder.encode(password);
     }
 
-    private void validateUploadProfileImage(String profileImagePath) {
+    private String validateUploadProfileImage(String profileImagePath) {
         if (profileImagePath == null || profileImagePath.isEmpty()) {
             profileImagePath = DEFAULT_PROFILE_IMAGE_PATH;
         }
+        return profileImagePath;
     }
 
     private boolean isMatchesPassword(String password, String storedPassword) {

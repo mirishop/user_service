@@ -14,6 +14,9 @@ public class InternalMemberController {
 
     private final MemberQueryService memberQueryService;
 
+    /**
+     * 다른 서비스로부터 memberNumber를 받아 유저가 존재하는지 확인합니다.
+     */
     @GetMapping("/{memberNumber}")
     public boolean existsMemberByNumber(@PathVariable("memberNumber") Long memberNumber) {
         return memberQueryService.existsMemberByNumber(memberNumber);

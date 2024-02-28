@@ -34,6 +34,9 @@ public class ImageUploadServiceImpl implements ImageUploadService {
         }
     }
 
+    /**
+     * 파일을 받아서 확장자를 검증하고, UUID형태로 파일을 저장하는 메소드
+     */
     @Override
     public String uploadImage(MultipartFile file) throws IOException {
         if (file.isEmpty()) {

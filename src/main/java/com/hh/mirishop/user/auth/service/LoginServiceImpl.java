@@ -23,6 +23,10 @@ public class LoginServiceImpl implements LoginService {
     private final MemberRepository memberRepository;
     private final AuthRedisService authRedisService;
 
+    /**
+     * LoginRequest를 받아 로그인 하는 메소드
+     * LoginRequest에는 email과 password가 있음
+     */
     @Override
     @Transactional
     public TokenResponse login(final LoginRequest loginRequest) {
@@ -37,6 +41,9 @@ public class LoginServiceImpl implements LoginService {
         return getNewTokenResponse(member.getNumber(), member.getEmail());
     }
 
+    /**
+     * refreshToken 재발급 메소드
+     */
     @Override
     @Transactional
     public TokenResponse reissue(final String refreshToken) {
@@ -60,9 +67,9 @@ public class LoginServiceImpl implements LoginService {
         return getNewTokenResponse(member.getNumber(), email);
     }
 
-    /*
-    accessToken, refreshToken을 모두 재발급하여, 기존 refreshToken 사용을 만료시킴
-    */
+    /**
+     * accessToken, refreshToken을 모두 재발급하여, 기존 refreshToken 사용을 만료시킴
+     */
     private TokenResponse getNewTokenResponse(Long memberNumber, String email) {
         TokenResponse newTokenResponse = jwtTokenProvider.generateTokenResponse(memberNumber, email);
         authRedisService.setDataExpire(email, newTokenResponse.getRefreshToken(), 3 * 24 * 60 * 60L);

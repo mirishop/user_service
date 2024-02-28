@@ -16,6 +16,9 @@ public class LogoutController {
 
     private final LogoutService logoutService;
 
+    /**
+     * 로그아웃 시 redis에 저장된 refreshToken을 삭제합니다.
+     */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         logoutService.logout(userDetails.getNumber());

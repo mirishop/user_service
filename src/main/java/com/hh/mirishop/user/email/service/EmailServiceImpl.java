@@ -17,24 +17,36 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
+    // 싱글톤 Random을 생성하여 무작위성 보장
+    private static final Random random = new Random();
+
     private final JavaMailSender javaMailSender;
     private final CacheRedisService cacheRedisService;
 
+    /**
+     * 이메일 값을 받아 랜덤 인증번호를 저장하는 메소드
+     */
     @Override
     @Transactional
     public void authEmail(EmailRequest request) {
-        Random random = new Random();
         String authKey = String.valueOf(random.nextInt(888888) + 111111);
 
         sendAuthEmail(request.getEmail(), authKey);
     }
 
+    /**
+     * 이메일과 인증번호를 받아 검증하는 메소드
+     */
     @Override
+    @Transactional(readOnly = true)
     public boolean verityEmail(String email, String verificationCode) {
         String storedEmail = cacheRedisService.getData(verificationCode);
         return email.equals(storedEmail);
     }
 
+    /**
+     * 메일 인증코드를 보내는 메소드
+     */
     private void sendAuthEmail(String email, String authKey) {
         String subject = "메일 인증코드";
         String text = "회원 가입을 위한 인증번호는 " + authKey + "입니다. <br/>";

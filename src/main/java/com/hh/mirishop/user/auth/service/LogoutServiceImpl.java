@@ -16,6 +16,9 @@ public class LogoutServiceImpl implements LogoutService {
     private final MemberRepository memberRepository;
     private final AuthRedisService authRedisService;
 
+    /**
+     * 로그아웃 메소드
+     */
     @Override
     @Transactional(readOnly = true)
     public void logout(Long memberNumber) {
