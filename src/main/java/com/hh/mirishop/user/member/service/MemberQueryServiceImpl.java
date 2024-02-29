@@ -7,6 +7,7 @@ import com.hh.mirishop.user.member.repository.MemberRepository;
 import com.hh.mirishop.user.common.exception.ErrorCode;
 import com.hh.mirishop.user.common.exception.MemberException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +20,10 @@ public class MemberQueryServiceImpl implements MemberQueryService {
     private final MemberRepository memberRepository;
 
     /**
-     * 유저 정보를 받아 존재하는지 boolean을 리턴하는 메소드
+     * 유저 정보를 받아 존재하는지 boolean을 리턴하는 내부용 메소드
      */
     @Override
+    @Cacheable(value = "userCache", key = "#root.args[0]")
     @Transactional(readOnly = true)
     public boolean existsMemberByNumber(Long memberNumber) {
         return memberRepository.findByNumberAndIsDeletedFalse(memberNumber).isPresent();
